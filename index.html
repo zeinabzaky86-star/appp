@@ -228,7 +228,7 @@
 
             } catch (error) {
                 console.error("Full error details:", error);
-               /* statusDiv.textContent = 'Please rename file in English.';*/
+                statusDiv.textContent = 'Error: ' + error.message;
                 statusDiv.style.color = 'red';
             }
         }
