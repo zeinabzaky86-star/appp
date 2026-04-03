@@ -18,11 +18,6 @@ require_once(__DIR__ . '/qrlib.php');
 ob_clean();
 header('Content-Type: application/json');
 
-// 3. Configuration
-$dbHost = 'localhost';
-$dbName = 'aealexue_appp'; // <-- Replace
-$dbUser = 'aealexue_appp';       // <-- Replace
-$dbPass = 'uI.Od@3OUNj?';        // <-- Replace
 
 $uploadDir = __DIR__ . '/uploads/';
 
@@ -74,14 +69,7 @@ try {
     $pdf->Output('F', $finalPdfAbsolutePath);
     unlink($qrCodeImagePath);
 
-    $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $sql = "INSERT INTO uploaded_pdfs (file_name, file_path) VALUES (:file_name, :file_path)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':file_name', $originalFileName, PDO::PARAM_STR);
-    $stmt->bindParam(':file_path', $finalPdfPath, PDO::PARAM_STR);
-    $stmt->execute();
+  
 
     echo json_encode([
         'status' => 'success',
