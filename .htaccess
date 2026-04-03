@@ -1,0 +1,19 @@
+# Enable proper routing and MIME type handling
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^index\.html$ - [L]
+    RewriteRule ^(.*)$ index.html [L]
+</IfModule>
+
+# Set default charset
+AddDefaultCharset UTF-8
+
+# Configure MIME types
+AddType application/json .json
+AddType text/css .css
+AddType text/html .html
+AddType image/png .png
+AddType image/jpeg .jpg
+AddType image/gif .gif
