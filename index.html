@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طباعة تقارير المركز الهندسى جامعة الاسكندرية</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Color Palette --- */
+        :root {
+            --primary-dark: #04243b;
+            --primary-light: #1a4a6b;
+            --accent-gold: #ffb703;
+            --background-light: #f0f4f8;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --success-green: #28a745;
+            --error-red: #dc3545;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-color: #dee2e6;
+        }
+
+        /* --- Base Styles --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            background-color: var(--text-light);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border-top: 5px solid var(--primary-dark);
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        p {
+            margin-bottom: 25px;
+            text-align: right;
+        }
+
+        strong {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--primary-light);
+            font-size: 1.1rem;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 30px 0;
+        }
+
+        /* --- Form Inputs --- */
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fff;
+        }
+        
+        input[type="file"] {
+            padding: 8px;
+        }
+        
+        input[type="number"]:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 8px rgba(255, 183, 3, 0.3);
+        }
+
+        /* --- Buttons --- */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            font-family: 'Cairo', sans-serif;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.2s ease-in-out;
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            filter: brightness(110%);
+        }
+        
+        button:disabled {
+            background-color: #b0bec5;
+            cursor: not-allowed;
+        }
+
+        /* Main action button */
+        .btn-generate {
+             background-color: var(--accent-gold);
+             color: var(--primary-dark);
+             width: 100%;
+             font-size: 1.2rem;
+             margin-top: 10px;
+        }
+
+        /* --- Status Message --- */
+        #status {
+            margin-top: 25px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            display: block; /* Always visible to work with existing JS */
+            opacity: 0;     /* Hidden by default, JS will make it visible by adding text */
+            transition: opacity 0.4s;
+        }
+        #status:not(:empty) {
+            opacity: 1; /* Fade in when it has text */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>طباعة تقارير المركز الهندسى جامعة الاسكندرية</h2>
+        
+        <p>
+            <strong>1. اختر ملف التقرير (PDF):</strong>
+            <input type="file" id="pdfFile" accept=".pdf" />
+        </p>
+        
+        <p style="display: none;">
+            <strong>2. حدد موضع الـ QR Code (من الركن السفلي الأيسر):</strong>
+            X coordinate: <input type="number" id="xCoord" value="10" />
+            Y coordinate: <input type="number" id="yCoord" value="10" />
+        </p>
+         <button onclick="generateAndSavePdf()" class="btn-generate">حفظ التقرير</button>                  <hr>
+
+        <div class="button-group">
+            <button id="downloadButton" onclick="downloadStoredPdf()" disabled>تحميل التقرير النهائي</button>
+            <button id="printButton" onclick="printStoredPdf()" disabled>طباعة التقرير النهائي</button>
+        </div>
+
+        <div id="status" style="margin-top: 15px; font-weight: bold;"></div>
+    </div>
+
+    <!-- The JavaScript is IDENTICAL to the one you provided -->
+    <script>
+        let lastSavedPdfPath = '';
+
+        async function generateAndSavePdf() {
+            const statusDiv = document.getElementById('status');
+            const downloadBtn = document.getElementById('downloadButton');
+            const printBtn = document.getElementById('printButton');
+            const pdfInput = document.getElementById('pdfFile');
+
+            if (pdfInput.files.length === 0) {
+                alert("Please select a PDF file.");
+                return;
+            }
+
+            statusDiv.textContent = 'Uploading and generating... Please wait.';
+            statusDiv.style.color = 'black';
+            downloadBtn.disabled = true;
+            printBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('pdfFile', pdfInput.files[0]); 
+            formData.append('x', document.getElementById('xCoord').value);
+            formData.append('y', document.getElementById('yCoord').value);
+
+            try {
+                const response = await fetch('generate_with_qr.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const responseText = await response.text();
+                
+                if (!response.ok) {
+                    throw new Error(`Server Error (${response.status}): ${responseText}`);
+                }
+
+                const result = JSON.parse(responseText);
+                
+                if (result.status === 'error') {
+                    throw new Error(`PHP Error: ${result.message}`);
+                }
+
+                statusDiv.textContent = 'Success: ' + result.message;
+                statusDiv.style.color = 'green';
+                lastSavedPdfPath = result.filePath;
+                downloadBtn.disabled = false;
+                printBtn.disabled = false;
+
+            } catch (error) {
+                console.error("Full error details:", error);
+                statusDiv.textContent = 'Please rename file in English.';
+                statusDiv.style.color = 'red';
+            }
+        }
+
+        function downloadStoredPdf() {
+            if (lastSavedPdfPath) {
+                window.open(lastSavedPdfPath, '_blank');
+            }
+        }
+
+        async function printStoredPdf() {
+            if (!lastSavedPdfPath) {
+                alert("No PDF has been generated yet.");
+                return;
+            }
+
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Preparing PDF for print...';
+            statusDiv.style.color = 'black';
+
+            try {
+                const response = await fetch(lastSavedPdfPath);
+                const pdfBlob = await response.blob();
+                const blobUrl = URL.createObjectURL(pdfBlob);
+
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                
+                iframe.onload = () => {
+                    setTimeout(() => {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                        
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                            URL.revokeObjectURL(blobUrl);
+                            statusDiv.textContent = '';
+                        }, 1000);
+                    }, 500);
+                };
+                
+                iframe.src = blobUrl;
+                document.body.appendChild(iframe);
+                
+            } catch (error) {
+                console.error("Error preparing PDF for print:", error);
+                statusDiv.textContent = 'Error during print preparation. Check console.';
+                statusDiv.style.color = 'red';
+            }
+        }
+    </script>
+
+</body>
+</html>
