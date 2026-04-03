@@ -1,19 +1,24 @@
-# Enable proper routing and MIME type handling
+# Allow access to all files
+<Files ~ "\.php$">
+    Allow from all
+</Files>
 
+# Enable PHP POST requests
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
-    RewriteRule ^index\.html$ - [L]
-    RewriteRule ^(.*)$ index.html [L]
+    
+    # Don't rewrite if it's a real file
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Don't rewrite PHP files
+    RewriteCond %{REQUEST_FILENAME} !\.php$
+    RewriteCond %{REQUEST_FILENAME} !\.json$
+    RewriteCond %{REQUEST_FILENAME} !\.png$
+    
+    # Rewrite everything else to index.html
+    RewriteRule ^(?!generate_with_qr\.php)(.*)$ index.html [L]
 </IfModule>
 
-# Set default charset
 AddDefaultCharset UTF-8
-
-# Configure MIME types
-AddType application/json .json
-AddType text/css .css
-AddType text/html .html
-AddType image/png .png
-AddType image/jpeg .jpg
-AddType image/gif .gif
