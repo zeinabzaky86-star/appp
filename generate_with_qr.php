@@ -1,23 +1,16 @@
 <?php
-// --- START OUTPUT BUFFERING ---
-// This will capture all output (including warnings) until we decide to send it.
 ob_start();
 
-// 1. Force full error reporting
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 2. Include libraries using ABSOLUTE paths
 require_once(__DIR__ . '/fpdf/fpdf.php');
 require_once(__DIR__ . '/fpdf/fpdi/src/autoload.php');
 require_once(__DIR__ . '/qrlib.php');
 
-// --- CLEAR THE OUTPUT BUFFER AND SET HEADER ---
-// This ensures no previous output interferes with the header.
 ob_clean();
 header('Content-Type: application/json');
-
 
 $uploadDir = __DIR__ . '/uploads/';
 
@@ -60,7 +53,7 @@ try {
         $pdf->useTemplate($templateId);
 
         if ($pageNo == 1) {
-            $qrWidth = 30; // mm
+            $qrWidth = 30;
             $qrYfromTop = $size['height'] - $qrY - $qrWidth;
             $pdf->Image($qrCodeImagePath, $qrX, $qrYfromTop, $qrWidth, 0, 'PNG');
         }
@@ -69,8 +62,6 @@ try {
     $pdf->Output('F', $finalPdfAbsolutePath);
     unlink($qrCodeImagePath);
 
-  
-
     echo json_encode([
         'status' => 'success',
         'message' => 'PDF with QR code generated!',
@@ -78,12 +69,10 @@ try {
     ]);
 
 } catch (Exception $e) {
-    // Clear buffer again to prevent any mixed output
     ob_clean();
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => $e->getMessage(), 'line' => $e->getLine(), 'file' => $e->getFile()]);
 }
 
-// --- STOP OUTPUT BUFFERING ---
 ob_end_flush();
 ?>
