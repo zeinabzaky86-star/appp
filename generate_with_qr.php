@@ -19,10 +19,7 @@ ob_clean();
 header('Content-Type: application/json');
 
 // 3. Configuration
-$dbHost = 'localhost';
-$dbName = 'aealexue_appp'; // <-- Replace
-$dbUser = 'aealexue_appp';       // <-- Replace
-$dbPass = 'uI.Od@3OUNj?';        // <-- Replace
+
 
 $uploadDir = __DIR__ . '/uploads/';
 
