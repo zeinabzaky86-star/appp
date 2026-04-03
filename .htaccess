@@ -1,0 +1,9 @@
+# Disable all rewriting for local development
+RewriteEngine Off
+
+# Allow PHP files
+<Files "*.php">
+    Allow from all
+</Files>
+
+AddDefaultCharset UTF-8
